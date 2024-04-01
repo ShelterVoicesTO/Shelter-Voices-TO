@@ -1,0 +1,977 @@
+---
+title: "GTA Shelter System - Population in Crisis"
+author: "Voices 4 Unhoused Liberation"
+date: "2024-04-01"
+output:
+  html_document: default
+links:
+- icon: door-open
+  icon_pack: fas
+  name: Voices 4 Unhoused Liberation
+  url: https://www.unhousedliberation.ca/
+---
+
+<style>
+/* =============================== */
+/*          CSS for Links          */
+/* =============================== */
+
+a.one:link {color: rgb(0, 0, 200);}
+a.one:visited {color: rgb(192, 20, 172);}
+a.one:hover {color: rgb(255, 20, 100);}
+
+/* ========================== */
+/*         TABLE CSS          */
+/* ========================== */
+
+.Table {
+  border-collapse: collapse;
+  overflow: auto;
+  width: 100%
+  margin: 1px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.55);
+}
+
+.Table thead tr {
+  border: 2px solid;
+  padding: 1px;
+  text-align: center;
+  text: bold;
+}
+
+.Table thead th {
+  border: 2px solid;
+  text-align: center;
+  text: bold;
+  font-size: 24px;
+}
+
+.Table thead th.f18 {
+  border: 2px solid;
+  text-align: center;
+  text: bold;
+  font-size: 18px;
+}
+
+.Table tbody td {
+  border: 2px solid;
+  text-align: left;
+  text: bold;
+  font-size: 14px;
+  padding: 5px;
+  background-color: white;
+}
+
+.Table tbody td.tmid {
+  border: 2px solid;
+  text-align: center;
+  text: bold;
+  font-size: 14px;
+  padding: 5px;
+  background-color: white;
+}
+
+td:first-child + td {text-align: center;}
+
+td:first-child + td + td.tcell {text-align: center;}
+
+.Table tbody tr {border-bottom: 2px solid #dddddd;}
+
+.Table tbody tr:last-of-type {border-bottom: 2px solid #009879;}
+
+
+/* ============================== */
+/*     CSS for stylizing text     */
+/* ============================== */
+
+body{font-size: 14pt;}
+
+#BBlk {
+  font-weight: bold;
+  color: rgb(0, 0, 0);
+  border: 2px solid black;
+  margin: 1px;
+  }
+
+#Blk20 {
+  color: black;
+  font-size: 20px;
+  }
+
+#Blk20L {
+  color: black;
+  font-size: 20px;
+  text-align: left;
+  }
+
+#BBlk20 {
+  font-weight: bold;
+  color: black;
+  font-size: 20px;
+  }
+
+#BBlk20L {
+  font-weight: bold;
+  color: black;
+  font-size: 20px;
+  text-align: left;
+  }
+
+#Blk { font-weight: bold; color: rgb(0, 0, 0); }
+#Red { font-weight: bold; color: rgb(255, 10, 20); }
+#Red2 { font-weight: bold; color: rgb(255, 50, 50); }
+#Dred { font-weight: bold; color: rgb(175, 0, 0); }
+#Or { font-weight: bold; color: rgb(255, 140, 0); }
+#Or2 { font-weight: bold; color: rgb(245, 180, 0); }
+#Gold { font-weight: bold; color: rgb(230, 190, 0); }
+#Ly { font-weight: bold; color: rgb(200, 200, 0); }
+#Gr1 { font-weight: bold; color: rgb(25, 200, 25); }
+#Gr2 { font-weight: bold; color: rgb(25, 150, 25); }
+#Gr3 { font-weight: bold; color: rgb(25, 100, 25); }
+#Blue { font-weight: bold; color: blue; }
+#Db2 { font-weight: bold; color: rgb(0, 0, 100); }
+#Teal { font-weight: bold; color: rgb(60, 180, 180); }
+#Glacialb { font-weight: bold; color: rgb(54, 139, 193); }
+#Lb1 { font-weight: bold; color: rgb(50, 215, 255); }
+#Lb2 { font-weight: bold; color: rgb(50, 155, 255); }
+#Lb3 { font-weight: bold; color: rgb(50, 115, 255); }
+#Violet { font-weight: bold; color: rgb(180, 73, 255); }
+#Purple { font-weight: bold; color: rgb(150, 0, 255); }
+#Dpurp { font-weight: bold; color: rgb(95, 0, 161); }
+#Magenta { font-weight: bold; color: rgb(255, 0, 255); }
+#Coral { font-weight: bold; color: rgb(255, 127, 80); }
+#Crim { font-weight: bold; color: rgb(220, 20, 60); }
+#Rasp { font-weight: bold; color: rgb(227, 11, 92); }
+#Lgray { font-weight: bold; color: rgb(190, 190, 190); }
+#Gray { font-weight: bold; color: rgb(155, 155, 155); }
+#Gray2 { font-weight: bold; color: rgb(215, 200, 200); }
+#Dgray { font-weight: bold; color: rgb(95, 95, 95); }
+#Br { font-weight: bold; color: rgb(165, 42, 42); }
+#Rust { font-weight: bold; color: rgb(183, 65, 14); }
+#Dbr { font-weight: bold; color: rgb(100, 20, 20); }
+#Zinc { font-weight: bold; color: rgb(140, 209, 187); }
+#Zinc2 { font-weight: bold; color: rgb(0, 102, 102); }
+</style>
+
+
+<body>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE)
+
+### Libraries (R packages used in data analysis)
+pacman::p_load(pacman, tidyverse, skimr, janitor, kableExtra, dplyr, purrr, rio, here, tidyverse, dplyr, ggplot2, stringr, flexdashboard, flextable, DT, shiny, plotly, ggExtra, cowplot, patchwork, forcats, naniar, DescTools)
+```
+
+```{r include=FALSE}
+### Import data file
+DSOSOdt <- import(here("Datasets", "DSOSO_2024_03_29.csv"))
+
+# Determine number of different Shelter Types (i.e. warming centres to Hotels)
+SType <- unique(DSOSOdt$SERVICE_TYPE)
+
+#### Determine number of unique "Capacity Type" values
+#### Two Groups ==> 1. "Room Based Capacity", 2. "Bed Based Capacity"
+CapType <- unique(DSOSOdt$CAPACITY_TYPE)
+
+### Change **class** of column values from *numeric* to *character* 
+### Namely: ORG_ID, SHELTER_ID, LOCATION_ID, PROGRAM_ID
+### since can't change *numeric* => *factor* class
+### also allows for proper graphing of data
+DSOSOdt$ORG_ID <- as.character(DSOSOdt$ORG_ID)
+DSOSOdt$SHELTER_ID <- as.character(DSOSOdt$SHELTER_ID)
+DSOSOdt$LOCATION_ID <- as.character(DSOSOdt$LOCATION_ID)
+DSOSOdt$PROGRAM_ID <- as.character(DSOSOdt$PROGRAM_ID)
+
+### can change *class* of "PROGRAM_ID" column values
+### SVdt$PROGRAM_ID <- as.factor(SVdt$PROGRAM_ID)
+
+# number of observations/rows per IDs
+OrgIDs <- unique(DSOSOdt$ORG_ID)
+ShelterIDs <- unique(DSOSOdt$SHELTER_ID)
+LocIDs <- unique(DSOSOdt$LOCATION_ID)
+ProgIDs <- unique(DSOSOdt$PROGRAM_ID)
+
+### ***********************************************************
+### ********************** CITY VARIABLE **********************
+### ***********************************************************
+
+### For *character* columns only, replace any blank strings with "NA" values
+df <- DSOSOdt %>% mutate(across(where(is.character), ~ na_if(.,"")))
+
+### Create **data frame** (df) tabulating the missing "NA" column values
+### NOTE: converted empty (" ") values to "NA" since **colSum** function
+### doesn't work with empty values
+df.NA.tab <- data.frame(colname = names(df),
+                        colSums_DSOSOdt=colSums(is.na(df)))
+
+### Replace empty (" ") column values in original df "DSOSOdt"
+### with another unique column value within the same row.
+### Again this will serve as an unique place holder to be
+### swapped out next. Define "swap" conditions using **dplyr** package
+df1 <- DSOSOdt %>% mutate(CITY = ifelse(CITY == "", PROGRAM_ID, CITY))
+
+### Replace unique place holder ID with City name
+df1['CITY'][df1['CITY'] == "16058"] <- "Etobicoke"
+df1['CITY'][df1['CITY'] == "15391"] <- "Etobicoke"
+df1['CITY'][df1['CITY'] == "15751"] <- "Toronto"
+df1['CITY'][df1['CITY'] == "12256"] <- "Toronto"
+df1['CITY'][df1['CITY'] == "12051"] <- "Toronto"
+df1['CITY'][df1['CITY'] == "17111"] <- "Scarborough"
+df1['CITY'][df1['CITY'] == "16252"] <- "Toronto"
+df1['CITY'][df1['CITY'] == "16251"] <- "Toronto"
+df1['CITY'][df1['CITY'] == "16551"] <- "Etobicoke"
+df1['CITY'][df1['CITY'] == "16291"] <- "Etobicoke"
+df1['CITY'][df1['CITY'] == "16351"] <- "Toronto"
+df1['CITY'][df1['CITY'] == "16331"] <- "Toronto"
+df1['CITY'][df1['CITY'] == "16471"] <- "Scarborough"
+df1['CITY'][df1['CITY'] == "11891"] <- "Toronto"
+df1['CITY'][df1['CITY'] == "17394"] <- "Toronto"
+df1['CITY'][df1['CITY'] == "17911"] <- "Toronto"
+df1['CITY'][df1['CITY'] == "16533"] <- "North York"
+df1['CITY'][df1['CITY'] == "16535"] <- "North York"
+
+## 16351 = 556 Sherbourne St, Toronto, M4X 1L3
+## 16331 = 545 Lake Shore Blvd W, Toronto, M5V 1A3
+## 16471 = Scarborough Women's Shelter
+## 16533 = COSTI UHP - Couples = 55 Hallcrown Pl, M2J 4R1, North York
+## 16535 = COSTI UHP - Refugee Singles = 55 Hallcrown Pl, M2J 4R1, North York
+## 16551 = SSHA Etobicoke Hotel Program - Mixed Adult
+## 11891 = Scott Mission, 502 Spadina Ave, M5S 2H1, Toronto
+## 17394 = Christie Ossington Warming Centre = 58 Cecil Street, TO, M5T 1N6
+## 17911 = CONC Warming Centre = 58 Cecil Street, TO, M5T 1N6
+
+### For character columns only, replace any blank strings with NA values
+df1.NA <- df1 %>% mutate(across(where(is.character), ~ na_if(.,"")))
+
+### Create another data frame tabulating missing "NA" values for each column
+### NOTE: convert empty ("") values to "NA" since **colSum** function doesn't
+### work with empty values
+df1.NA.tab <- data.frame(colname = names(df1.NA),
+                         colSums_df1NA=colSums(is.na(df1.NA)))
+
+### ***********************************************************
+### ****************** POSTAL CODE VARIABLE *******************
+### ***********************************************************
+
+### Replace missing POSTAL CODES values
+### Swap empty " " column values with unique place holder value
+### Set conditions for "swap" using **dplyr** package
+df2 <- df1 %>% mutate(POSTALcode = ifelse(POSTALcode == "", PROGRAM_ID, POSTALcode))
+
+### Replace unique place holder ID with Postal code
+df2['POSTALcode'][df2['POSTALcode'] == "15751"] <- "M5A 2N2"
+df2['POSTALcode'][df2['POSTALcode'] == "12256"] <- "M6H 1B1"
+df2['POSTALcode'][df2['POSTALcode'] == "12051"] <- "M4M 1J8"
+df2['POSTALcode'][df2['POSTALcode'] == "17111"] <- "M1K 1M2"
+df2['POSTALcode'][df2['POSTALcode'] == "16252"] <- "M5A 1V1"
+df2['POSTALcode'][df2['POSTALcode'] == "16251"] <- "M5A 1V1"
+df2['POSTALcode'][df2['POSTALcode'] == "16351"] <- "M4X 1L3"
+df2['POSTALcode'][df2['POSTALcode'] == "16331"] <- "M5V 1A3"
+df2['POSTALcode'][df2['POSTALcode'] == "16471"] <- "M1H 3B7"
+df2['POSTALcode'][df2['POSTALcode'] == "16533"] <- "M2J 4R1"
+df2['POSTALcode'][df2['POSTALcode'] == "16535"] <- "M2J 4R1"
+df2['POSTALcode'][df2['POSTALcode'] == "11891"] <- "M5S 2H1"
+
+## 16351 = 556 Sherbourne St, Toronto, M4X 1L3
+## 16331 = 545 Lake Shore Blvd W, Toronto, M5V 1A3
+## 16471 = Scarborough Women's Shelter
+## 16533 = COSTI UHP - Couples = 55 Hallcrown Pl, M2J 4R1, North York
+## 16535 = COSTI UHP - Refugee Singles = 55 Hallcrown Pl, M2J 4R1, North York
+## 16551 = SSHA Etobicoke Hotel Program - Mixed Adult
+## 11891 = Scott Mission, 502 Spadina Ave, M5S 2H1, Toronto
+## 17394 = Christie Ossington Warming Centre = 58 Cecil Street, TO, M5T 1N6
+## 17911 = CONC Warming Centre = 58 Cecil Street, TO, M5T 1N6
+
+### For character columns only, replace any blank strings with NA values
+df2.NA <- df2 %>% mutate(across(where(is.character), ~ na_if(.,"")))
+
+### Create data frame of missing "NA" values for each column
+### NOTE: converted empty (" ") values to "NA" since "colSum" doesn't
+### work with empty values
+df2.NA.tab <- data.frame(colname = names(df2.NA),
+                         colSums_SVdt=colSums(is.na(df2.NA)))
+
+### Unfortunately can't find 4 Postal Codes
+### swap out place holder PID with "NA" value
+df2.NA['POSTALcode'][df2.NA['POSTALcode'] == "16058"] <- ""
+df2.NA['POSTALcode'][df2.NA['POSTALcode'] == "15391"] <- ""
+df2.NA['POSTALcode'][df2.NA['POSTALcode'] == "16291"] <- ""
+df2.NA['POSTALcode'][df2.NA['POSTALcode'] == "16551"] <- ""
+
+### For character columns only, replace any "NA" string with NA values
+df3.NA <- df2.NA %>% mutate(across(where(is.character), ~ na_if(.,"")))
+
+### Create data frame of missing "NA" values for each column
+### Check "NA" status of "POSTALcode" column of 2 Etobicoke shelters
+df3.NA.tab <- data.frame(colname = names(df3.NA),
+                         colSums_df3NA=colSums(is.na(df3.NA)))
+
+```
+
+<br>
+<br>
+
+**Homelessness**, as defined by **C**anadian **O**bservatory on **H**omelessness (**COH**, formerly the Canadian Homelessness Research Network):<br>
+
+>"*describes the situation of an individual, family or community without stable, permanent, appropriate housing, or the immediate prospect, means and ability of acquiring it. It is the result of systemic or societal barriers, a lack of affordable and appropriate housing, the individual/household’s financial, mental, cognitive, behavioural or physical challenges, and/or racism and discrimination*."**<sup>1</sup>**
+
+The consequences of **homelessness**, both to the person experiencing it and society at large are generally very negative (i.e. unsafe, stressful, huge negative health and economic impacts to the homeless individuals and the community they reside in).
+
+The chronic lack of safe and affordable housing is largely the result of failed leadership at all government levels, as well as an unchecked (i.e. lack of effective regulations that protect renters from evictions) predatory housing and rental markets. Housing is first and foremost a basic human right. It needs to be first and foremost in the minds of our government leaders since we tax payers have entrusted them with managing our "*purse strings*" in a morally responsible manner. Whether we are homeless, at risk of being homeless, or facing housing insecurity (i.e. inflated rents, poorly maintained rental units), the overall impacts are the same - negative!  
+
+
+## About DSOSO and Shelter Capacity  
+&nbsp; &nbsp; 
+Information in this report is based on **<a class="one" href="https://open.toronto.ca/dataset/daily-shelter-overnight-service-occupancy-capacity/">Daily Shelter Overnight Service Occupancy</a>** (**DSOSO**) records that are available for download from the City of Toronto's **<a class="one" href="https://open.toronto.ca/">Open Data Portal</a>**. The data maintained here provides a brief glimpse of some basic demographic features of the **G**reater **T**oronto **A**rea (**GTA**) Shelter population as well as the administrative details of the Shelter System (**Table 1.**).<br>
+&nbsp; &nbsp; According to these records **Funding Capacity** refers to the "*number of beds or rooms that a program is intended* [funded] *to provide*".**<sup>2</sup>** Although there may be a number of reasons why beds or rooms may be temporarily out of service (e.g. repairs, renovations, outbreaks, or pest control) these reasons are not reported and therefore can not be verified (i.e. lacks transparency). The so called **Actual Capacity** refers to the "*number of beds or rooms in service and showing as <u>available for occupancy</u> in the Shelter Management Information System at time of reporting.*" This latter measure is touted as being "*a more effective capacity measure to assess program occupancy rates*". Clearly the number of <u>unavailable</u> rooms or beds (**Note:** **# UNAVAILABLE BEDS** = **Capacity Funding Bed** - **Capacity Actual Bed**) represents the number of rooms/beds that the Service provider has been given funding for, but have decided <u>not</u> to use for unknown reasons (i.e. not reported).
+
+<br>
+<br>
+
+<div align=center>
+<!--------------------------------------------------------->
+<!---------- TABLE 1 - DATASET CATEGORIES/TERMS ----------->
+<!--------------------------------------------------------->
+<a id="Tab1"> </a>
+<table class="Table">
+    <thead>
+      <tr>
+        <td colspan="4"><span id="BBlk20">TABLE 1. DSOSO DATA FEATURES</span></td>
+      </tr>
+    <thead>
+    <thead>
+      <tr>
+        <th class="f18" colspan="1"><span id="Blk">Term</span></th>
+        <th class="f18" colspan="3"><span id="Blk">Definition</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align:center"><span id="Blk">OCCUPANCY DATE</span></td>
+        <td style="text-align:left">This date refers to the <u>evening of the overnight period</u> being reported. The occupancy data is retrieved at 4:00 AM the <u>following morning</u> (e.g. Jan. 1<sup>st</sup>, 2024 record => data collected at 4:00 AM Jan. 2<sup>nd</sup>, 2024).<b><sup>2</sup></b></td>
+      </tr>
+      <tr>
+        <td style="text-align:center"><span id="Blk">SERVICE USER COUNT</span></td>
+        <td style="text-align:left">The number of service users staying in an overnight program as of the occupancy time and date. Programs with no service user occupancy will not be included in reporting for that day.<b><sup>2</sup></b></td>
+      </tr>
+      <tr>
+      <tr>
+        <td style="text-align:center"><span id="Blk">PROGRAM ID</span></td>
+        <td style="text-align:left">Provides a distinct or <b>unique ID</b> of the program even if the program name changes.<b><sup>2</sup></b></td>
+      </tr>
+      <tr>
+        <td style="text-align:center"><span id="Blk">SECTOR</span></td>
+        <td style="text-align:left">A category or type of homeless shelter that is based on gender, age and household size of the service user group(s) being served at the shelter site. There are <u>currently</u> 5 shelter sectors in Toronto: <b>(i)</b> adult men, <b>(ii)</b> adult women, <b>(iii)</b> mixed adult (co-ed or all gender), <b>(iv)</b> youth, and <b>(v)</b> family.<b><sup>2</sup></b></td>
+      </tr>
+      <tr>
+        <td style="text-align:center"><span id="Blk">PROGRAM MODEL</span></td>
+        <td style="text-align:left">Basic classification scheme that divides the shelter program into two groups: <b>(i) Emergency</b> or <b>(ii) Transitional</b>. The <b>Emergency</b> program can be accessed by any individual or family experiencing homelessness with or without a referral, while the <b>Transitional</b> program provides required and/or specialized programming that can be accessed by eligible individuals and families experiencing homelessness by referral only.<b><sup>2</sup></b></td>
+      </tr>
+      <tr>
+        <td style="text-align:center"><span id="Blk">OVERNIGHT SERVICE TYPE</span></td>
+        <td style="text-align:left"> The types of overnight service being provided include: <b>(i) Shelter</b>, <b>(ii) 24-Hour Respite</b>, <b>(iii) Motel/Hotel</b>, <b>(iv) Interim Housing</b>, <b>(v) Warming Centre</b>, <b>(vi) 24-Hour Women's Drop-in</b>, and <b>(vi) Isolation/Recovery Site</b>.<br>
+<b>Shelter:</b> Supervised residential facilities that provide temporary accommodation and related support services to assist people experiencing homelessness to move into housing. Operate year-round. <b>24-Hour Respite:</b> An allied shelter service which provides essential services to individuals experiencing homelessness in an environment that prioritizes ease of access to safe indoor space. Services provided include resting spaces, meals and service referrals. Operates on a 24/7 basis. <b>Motel/Hotel:</b> A type of shelter program that provides shelter beds/rooms through contracts with hotel and motel operators, which enables the City to expand and contract emergency shelter capacity in response to demand for services. <b>Interim Housing:</b> A type of shelter program that provides interim housing shelter beds through contracts with apartment spaces. <b>Warming Centre:</b> An allied shelter service that provides immediate safe indoor space for people during extreme cold weather alerts. Facilities vary, but often include City of Toronto buildings or community recreation centres. Services vary, depending on the facility, and may include at a minimum resting spaces, snacks and referrals to emergency shelter. Operates on a 24/7 basis for the duration of an extreme cold weather alert. <b>24-Hour Women's Drop-in:</b> A type of 24-Hour Respite Site that provides services to women and transgender or gender-non-binary people who are experiencing homelessness. <b>Isolation/Recovery Site:</b> Dedicated isolation and recovery programs with medical supports for people experiencing homelessness to isolate and recover from COVID-19.<b><sup>2</sup></b></td>
+      </tr>
+      <tr>
+      <td style="text-align:center"><span id="Blk">PROGRAM AREA</span></td>
+      <td style="text-align:left">Identifies either <b>Base Shelter and Overnight Services</b> system programs, or <b>Temporary Response</b> system programs. <b>(i) Base Shelter and Overnight Services System:</b> are intended to be regular, year-round programs. <b>(ii) Base Program - Refugee:</b> are intended to be year-round programs that serve refugee and asylum claimant families and individuals. <b>(iii) Temporary Refugee Response:</b> are intended to create spaces in the overnight services system in order to support refugee and asylum claimant families and individuals. <b>(iv) COVID-19 Response:</b> Programs that are intended to create spaces in the overnight services system in order to support improved physical distancing during the COVID-19 pandemic. <b>(v) Winter Response:</b> are intended to be exclusively dedicated to the provision of additional spaces under winter services plans. Winter service planning may also add additional capacity to existing programs classified in other program areas.<b><sup>2</sup></b></td>
+      </tr>
+      <tr>
+      <td style="text-align:center"><span id="Blk">CAPACITY TYPE</span></td>
+      <td style="text-align:left">Program provides either <b>room</b> or <b>bed</b> based capacity. <b>(i) Bed Based Capacity:</b> where occupancy is measured at the bed level and typically involve common sleeping areas. <b>(ii)Room Based Capacity:</b> where occupancy is measured at the room level and is typically of family programs or hotel-based programs where sleeping rooms are not shared by people from different households.<b><sup>2</sup></b></td>
+      </tr>
+      <tr>
+      <td style="text-align:center"><span id="Blk">CAPACITY ACTUAL (BED/ROOM)</span></td>
+      <td style="text-align:left">The number of <b>beds</b> or <b>rooms</b> showing as available for occupancy in the Shelter Management Information System (<b>SMIS</b>).<b><sup>2</sup></b></td>
+      </tr>
+      <tr>
+      <td style="text-align:center"><span id="Blk">CAPACITY FUNDING (BED/ROOM) </span></td>
+      <td style="text-align:left">The number of <b>rooms</b> or <b>beds</b> that a program has been approved to provide.<b><sup>2</sup></b></td>
+      </tr>
+      <tr>
+      <td style="text-align:center"><span id="Blk">UNAVAILABLE ROOMS/BEDS</span></td>
+      <td style="text-align:left">The number of <b>beds</b> or <b>rooms</b> that are <u>not currently available</u> in a program. This can include temporarily out-of-service beds due to maintenance, repairs, renovations, outbreaks and pest control (<b>**NOTE:</b> UNAVAILABLE = CAPACITY FUNDING - CAPACITY ACTUAL).<b><sup>2</sup></b></td>
+      </tr>
+    </tbody>
+</table>
+
+<!--------------------------------------------------------->
+<!--------------------------------------------------------->
+
+</div>
+
+<br>
+<br>
+
+<div align=center>
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.height=5, fig.align='center'}
+### ***********************************************************
+### ********** GRAPH 1 - TOTAL #s vs TIME line graph **********
+### ***********************************************************
+
+### Use "group by" and "sum" functions to sum up observations
+### Total Shelter Population TIMELINE
+df3NAtotals <- df3.NA %>%
+  group_by(OCCUPANCY_DATE) %>%
+  summarise(n_observ = n(), sum_Users = sum(SERVICE_USER_COUNT))
+
+###### Plot Total Shelter Resident Population TIMELINE
+plot.ResSum <- ggplot(df3NAtotals) +
+  aes(x = OCCUPANCY_DATE, y = sum_Users) +
+  geom_line(colour = "darkblue") +
+  labs(x = "Date",
+       y = "Total Occupancy # (counts)",
+       title = "Figure 1: GTA Shelter Population (Period: 2021/01/01 - 2024/03/29)") +
+  theme_bw() +
+  theme(plot.title = element_text(size = 14L,
+                                  face = "bold", hjust = 0.5, vjust = 0),
+        axis.title.y = element_text(size = 12L,
+                                    face = "bold"),
+        axis.title.x = element_text(size = 12L,
+                                    face = "bold"),
+        plot.background = element_rect(fill = "white"))
+
+### Create Interactive Plot with "ggplotly" package
+plotResSumly <- plot.ResSum %>% plotly::ggplotly()
+plotResSumly
+
+```
+
+</div>
+**Figure 1. Total Shelter Population within the Greater Toronto Area (GTA).** The total number of shelter users for each <u>recorded</u> **Occupancy Date** were plotted for the period of 2021-01-01 to 2024-03-29. The number of shelter users have increased by more than 50% over this time span. These numbers are obviously an underestimate of the "*true*" demand for these types of service given that there are many more homeless individuals who are not accounted for by these records.
+
+<br>
+<br>
+
+<div align=center>
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.height=8, out.width='100%', fig.align='center'}
+### *************************************************************
+### ********** GRAPH 2 - TOTAL # vs TIME (CITY FACETS) **********
+### *************************************************************
+
+### Use "group by" and "sum" functions to sum up observations
+### Total Population per "CITY"
+df3NAcity <- df3.NA %>%
+  group_by(OCCUPANCY_DATE, CITY) %>%
+  summarise(n_observ = n(), sum_Users = sum(SERVICE_USER_COUNT))
+
+###### Plot Total Shelter Population per "CITY" Facets
+plotCT <- df3NAcity %>% filter(!(CITY %in% "")) %>%
+  ggplot() +
+  aes(x = OCCUPANCY_DATE, y = sum_Users, group = CITY) +
+  geom_line(colour = "darkblue") +
+  labs(x = "Date",
+       y = "Total Occupancy # (counts)",
+       title = "Figure 2: GTA Shelter Population (Regional Populations)") +
+  theme_bw() +
+  theme(plot.title = element_text(size = 14L,
+                                  face = "bold", hjust = 0.5, vjust = 0),
+        axis.title.y = element_text(size = 12L, face = "bold"),
+        axis.title.x = element_text(size = 12L, face = "bold"),
+        plot.background = element_rect(fill = "white"),
+        panel.grid.minor = element_blank()) +
+  facet_wrap(vars(CITY), scales = "free_y", ncol = 3L, nrow = 5L)
+
+### Create Interactive Plot with "ggplotly" package
+plotCTly <- plotCT %>% plotly::ggplotly()
+plotCTly
+
+```
+
+</div>
+
+**Figure 2. Shelter Population per GTA region.** The total number of shelter users for each region within the **GTA** (i.e. Toronto, North York, Etobicoke, Scarborough, Vaughan) were plotted for the time period of 2021-01-01 to 2024-03-29. The disparity in the number of shelter users per region shows that the vast majority of shelter users today are being housed within Toronto and North York (see Table below).
+
+<br>
+<br>
+
+<div align=center>
+```{r echo=FALSE, message=FALSE, warning=FALSE,}
+### *********************************************************
+### ********** GRAPH 3 - BAR GRAPH TOTAL # vs CITY **********
+### *********************************************************
+
+### Use "group by" and "sum" functions to sum up observations
+### Total Population per "CITY"
+df240329 <- subset(df3.NA, OCCUPANCY_DATE == "2024-03-29")
+CityTots <- df240329 %>%
+  group_by(OCCUPANCY_DATE, CITY) %>%
+  summarise(n_observ = n(), sum_Users = sum(SERVICE_USER_COUNT))
+
+### Bar Graph (2024/03/29) = 9704 Shelter population, 136 Program IDs 
+plotCityTots <- ggplot(CityTots) +
+  aes(x = CITY, y = sum_Users) +
+  geom_col(fill = "darkblue") +
+  labs(x = "GTA Region", 
+       y = "Total Occupancy # (counts)",
+       title = "Figure 3: GTA Homeless Shelter Population (Region, 2024-03-29)") +
+  theme_bw() +
+  theme(plot.title = element_text(size = 14L,
+                                  face = "bold", hjust = 0.5, vjust = 0),
+        axis.title.y = element_text(size = 12L, face = "bold"),
+        axis.title.x = element_text(size = 12L, face = "bold"))
+
+### Create Interactive Plot with "ggplotly" package
+plotCityTotsly <- plotCityTots %>% plotly::ggplotly()
+plotCityTotsly
+
+```
+
+</div>
+
+**Figure 3. Current Shelter Populations per GTA Region.** This bar graph shows the current (2024-03-29) number of shelter occupants within each of the designated **GTA** regions. Toronto (68.12%) and North York (18.69%) shelter the majority of homeless people, while Scarborough (8.58%), Etobicoke (4%), and Vaughan (0.61%) collectively house less than 14% of the homeless population.  
+
+<br>
+<br>
+
+<div align=center>
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.height=8, out.width='100%', fig.align='center'}
+### ***************************************************************
+### ********** GRAPH 4 - TOTAL # vs TIME (SECTOR FACETS) **********
+### ***************************************************************
+
+### Use "group by" and "sum" functions to sum up observations
+### Total Population per "SECTOR"
+df3NAsector <- df3.NA %>%
+  group_by(OCCUPANCY_DATE, SECTOR) %>%
+  summarise(n_observ = n(), sum_Users = sum(SERVICE_USER_COUNT))
+
+###### Plot Total Shelter Population per "SECTOR" Facets
+plotSector <- df3NAsector %>% filter(!(SECTOR %in% "")) %>%
+  ggplot() +
+  aes(x = OCCUPANCY_DATE, y = sum_Users, group = SECTOR) +
+  geom_line(colour = "darkblue") +
+  labs(x = "Date",
+       y = "Total Occupancy # (counts)",
+       title = "Figure 4: GTA Shelter Population (Shelter Sector Populations)") +
+  theme_bw() +
+  theme(plot.title = element_text(size = 14L,
+                                  face = "bold", hjust = 0.5, vjust = 0),
+        axis.title.y = element_text(size = 12L, face = "bold"),
+        axis.title.x = element_text(size = 12L, face = "bold"),
+        plot.background = element_rect(fill = "white"),
+        panel.grid.minor = element_blank()) +
+  facet_wrap(vars(SECTOR), scales = "free_y", ncol = 3L, nrow = 3L)
+
+### Create Interactive Plot with "ggplotly" package
+plotSectorly <- plotSector %>% plotly::ggplotly()
+plotSectorly
+
+```
+
+</div>
+
+**Figure 4. Homeless Population Demographics within the GTA Region.** The above graph looks at the **GTA** homeless population through the lens of common demographic variables (e.g. gender, family status). All of the designated groups (i.e. **men**, **women**, **families**, **Youth** and **Mixed adults**) have been rapidly increasing in number within the shelter system over the last 3 years. However, **Youth** and **Mixed adult** populations have shown some considerable fluctuations in numbers during the latter part of this time period. 
+
+<br>
+<br>
+
+<div align=center>
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.height=6, out.width='100%', fig.align='center'}
+### ****************************************************************
+### ******* GRAPH 5 - TOTAL # vs TIME (PROGRAM MODEL FACETS) *******
+### ****************************************************************
+
+### Use "group by" and "sum" functions to sum up observations
+### Total Population per "PROGRAM MODEL"
+df3NAprogmodel <- df3.NA %>%
+  group_by(OCCUPANCY_DATE, PROGRAM_MODEL) %>%
+  summarise(n_observ = n(), sum_Users = sum(SERVICE_USER_COUNT))
+
+###### Remove NA using **complete.cases** function from "stats" package
+df3NAprogmodel.noNA <- df3NAprogmodel[complete.cases(df3NAprogmodel), ]
+
+###### Also can remove NA using **na.omit** function from "stats" package
+df3NAprogmodel.noNA2 <- na.omit(df3NAprogmodel)
+
+###### Plot Total Shelter Population per "PROGRAM MODEL" Facets
+plotPMtotals <- df3NAprogmodel.noNA %>% filter(!(PROGRAM_MODEL %in% "")) %>%
+  ggplot() +
+  aes(x = OCCUPANCY_DATE, y = sum_Users, group = PROGRAM_MODEL) +
+  geom_line(colour = "darkblue") +
+  labs(x = "Date",
+       y = "Total Occupancy # (counts)",
+       title = "Fugure 5: GTA Shelter Population (Program Model Populations)") +
+  theme_bw() +
+  theme(plot.title = element_text(size = 14L,
+                                  face = "bold", hjust = 0.5, vjust = 0),
+        axis.title.y = element_text(size = 12L, face = "bold"),
+        axis.title.x = element_text(size = 12L, face = "bold"),
+        plot.background = element_rect(fill = "white"),
+        panel.grid.minor = element_blank()) +
+  facet_wrap(vars(PROGRAM_MODEL),
+             scales = "free_y", ncol = 3L, nrow = 3L)
+
+### Create Interactive Plot with "ggplotly" package
+plotPMtotalsly <- plotPMtotals %>% plotly::ggplotly()
+plotPMtotalsly
+
+```
+
+</div>
+
+**Figure 5. Homeless Population Program Model.** The above graph looks at the **GTA** Shelter system's designated **Emergency** and **Transitional** shelter programs. According to City of Toronto's **Housing + Homelessness Service Glossary (2019)<sup>3</sup>** the **Emergency Shelter Program** constitutes a homeless shelter program that individuals and families can access without a referral. By contrast a **Transitonal Shelter Program** constitutes a homeless shelter program that individuals and families can access <u>only</u> with a <u>referral</u>. The numbers clearly show that only about 1 out of every 10 homeless individuals that are apart of this limited data set have been able to access a <u>referral</u>.  
+
+<br>
+<br>
+
+<div align=center>
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.height=10, out.width='100%', fig.align='center'}
+### ***************************************************************
+### ******* GRAPH 6 - TOTAL # vs TIME (SERVICE TYPE FACETS) *******
+### ***************************************************************
+
+### Use "group by" and "sum" functions to sum up observations
+### Total Population per "SERVICE TYPE"
+df3NAservtype <- df3.NA %>%
+  group_by(OCCUPANCY_DATE, SERVICE_TYPE) %>%
+  summarise(n_observ = n(), sum_Users = sum(SERVICE_USER_COUNT))
+
+# anyNA(df3NAservtype)
+# anyNA(df3NAservtype$SERVICE_TYPE)
+# anyNA(df3NAservtype$sum_Users)
+
+###### Remove NA using **complete.cases** function from "stats" package
+df3NAservtype.noNA <- df3NAservtype[complete.cases(df3NAservtype), ]
+
+###### Plot Total Shelter Population per "SERVICE TYPE" Facets
+plotSTtotals <- df3NAservtype.noNA %>% filter(!(SERVICE_TYPE %in% "")) %>%
+  ggplot() +
+  aes(x = OCCUPANCY_DATE, y = sum_Users, group = SERVICE_TYPE) +
+  geom_line(colour = "darkblue") +
+  labs(x = "Date",
+       y = "Total Occupancy # (counts)",
+       title = "Figure 6: GTA Shelter Population (Service Type Population)") +
+  theme_bw() +
+  theme(plot.title = element_text(size = 14L,
+                                  face = "bold", hjust = 0.5, vjust = 0),
+        axis.title.y = element_text(size = 12L, face = "bold"),
+        axis.title.x = element_text(size = 12L, face = "bold"),
+        plot.background = element_rect(fill = "white"),
+        panel.grid.minor = element_blank()) +
+  facet_wrap(vars(SERVICE_TYPE),
+             scales = "free_y", ncol = 3L, nrow = 4L)
+
+### Create Interactive Plot with "ggplotly" package
+plotSTtotalsly <- plotSTtotals %>% plotly::ggplotly()
+plotSTtotalsly
+
+```
+
+</div>
+
+**Figure 6. Homeless Overnight Service Types within the GTA.** The region's homeless population can access different types of overnight services. The seven main **Shelter Types** are **(i) Shelters**, **(ii) 24-Hour Respites**, **(iii) Motels/Hotels**, **(iv) Interim Housing**, **(v) Warming Centres**, **(vi) 24-Hour Women’s Drop-ins**, and **(vii) Isolation/Recovery Sites**. Although there are additional **Service Types** offered, specifically **(viii) Top Bunk Contingency Spaces** and **(ix) Alternative Space Protocol**, these are ill-defined and very few in number. As of March 29<sup>th</sup> 2024 (latest numbers) the vast majority of **Service Types** are "*reactionary*" or emergency-styled **Shelters** (4867 of 9704, or 50.15%) and **Motel/Hotel** (4062 of 9704, or 41.86%) services. Unfortunately, **Interim** and **Transitional Housing** programs that ultimately lead to <u>permanent</u> housing are virtually non-existent.
+
+<br>
+<br>
+
+<div align=center>
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.height=8, out.width='100%', fig.align='center'}
+### ***************************************************************
+### ******* GRAPH 7 - TOTAL # vs TIME (PROGRAM AREA FACETS) *******
+### ***************************************************************
+
+### Use "group by" and "sum" functions to sum up observations
+### Total Population per "PROGRAM AREA"
+df3NAPA <- df3.NA %>%
+  group_by(OCCUPANCY_DATE, PROGRAM_AREA) %>%
+  summarise(n_observ = n(), sum_Users = sum(SERVICE_USER_COUNT))
+
+###### Remove NA using **complete.cases** function from "stats" package
+df3NAPA.noNA <- df3NAPA[complete.cases(df3NAPA), ]
+
+### Plot "Program Area" Facets
+plotdf3NAPA <- df3NAPA.noNA %>% filter(!(PROGRAM_AREA %in% "")) %>%
+  ggplot() +
+  aes(x = OCCUPANCY_DATE, y = sum_Users) +
+  geom_line(colour = "darkblue") +
+  labs(x = "Date",
+       y = "Occupancy # (counts)",
+       title = "Figure 7: GTA Shelter Population (Program Area Populations)") +
+  theme_bw() +
+  theme(plot.title = element_text(size = 14L,
+                                  face = "bold", hjust = 0.5, vjust = 0),
+        axis.title.y = element_text(size = 12L, face = "bold"),
+        axis.title.x = element_text(size = 12L, face = "bold"),
+        plot.background = element_rect(fill = "white"),
+        panel.grid.minor = element_blank()) +
+  facet_wrap(vars(PROGRAM_AREA),
+             scales = "free_y", ncol = 3L, nrow = 2L)
+
+### Create Interactive Plot with "ggplotly" package
+plotdf3NAPAly <- plotdf3NAPA %>% plotly::ggplotly()
+plotdf3NAPAly
+
+```
+
+</div>
+
+**Figure 7. Homeless Program Area within the GTA.** Overnight services that deal with the region's homeless population can be categorized as either: **(i) Base Shelter**, **(ii) Base Program - Refugee**, **(iii) Temporary Refugee Response**, **(iv) COVID-19 Response**, or **(v) Winter Response**. These 5 program services are obviously regular (i.e. year-round) or temporary in nature. The current refugee situation (i.e. heightened global conflicts) along with the long-term health and economic affects of the COVID-19 pandemic continue to drive the growing homelessness problem within the **GTA**. Even the cyclic **Winter Response** program, which spikes during the cold season, experienced a considerable rise in service users, much more so than in previous years. This noticeable increase in the number of temporary **Winter Response** program users likely reflects the growing number of undocumented homeless people within the **GTA** that do not have access to other shelter services (i.e. "*hidden homelessness*").
+
+<br>
+<br>
+
+<div align=center>
+```{r echo=FALSE, message=FALSE, warning=FALSE, out.width='90%', fig.align='center'}
+### *****************************************************************
+### ** GRAPH 8 - TOTAL # for PID16011 (2035 Kennedy Rd) 2024-03-29 **
+### *****************************************************************
+
+#### Use logic function "subset" to select SVdt rows
+#### that only have Program ID == "16011" (2035 Kennedy Rd shelter)
+df3NAPID16011 <- subset(df3.NA, PROGRAM_ID == "16011")
+
+### Plot Occupancy data for ProgID 16011 (2035 Kennedy Rd)
+plot3 <- ggplot(data = df3NAPID16011,     # data set
+  mapping = aes(                          # map aesthetics
+    x = OCCUPANCY_DATE,                   # map x y axis values
+    y = SERVICE_USER_COUNT)) +
+  geom_point(color = "darkblue", size = 2, alpha = 0.4)+
+  labs(x = "Occupancy Date",
+       y = "Occupancy # (counts)",
+       title = "Figure 8: Homes First Delta Hotel Shelter") +
+  theme_bw()
+
+plot3b <- plot3 +     # theme adjustments
+  theme_bw() +
+  theme(
+    plot.title = element_text(size = 14L,
+                              face = "bold", hjust = 0.5, vjust = 0),
+    axis.text.x = element_text(size = 10L),
+    axis.text.y = element_text(size = 10L),
+    axis.title = element_text(size = 12L),
+    plot.background = element_rect(fill = "white"))
+
+plot4 <- ggplot(data = df3NAPID16011,     # data set
+  mapping = aes(                          # map aesthetics
+    x = OCCUPANCY_DATE,                   # map x y axis values
+    y = Rooms_Unavailable)) +
+  geom_point(color = "darkblue", size = 2, alpha = 0.2)+
+  labs(x = "Occupancy Date",
+       y = "# Rooms Unavailable",
+       title = "Figure 9: Homes First run Delta Hotel Shelter",
+       subtitle = "(Unavailable Room Counts)",
+       caption = stringr::str_glue("Current: {max(df3NAPID16011$OCCUPANCY_DATE, na.rm=T)}")) +
+  theme_bw()
+
+plot4b <- plot4 + theme_classic() +
+  theme(plot.title = element_text(size = 14L),         # theme adjustments
+    plot.caption = element_text(size = 8L, hjust = 0), # left-align caption
+    plot.subtitle = element_text(face = "italic"),
+    axis.text.x = element_text(size = 10L),
+    axis.text.y = element_text(size = 10L),
+    axis.title = element_text(size = 12L),             # adjusts axes titles
+    plot.background = element_rect(fill = "white"))  
+
+# Plot3b with marginal histograms
+plot3bm <- ggMarginal(
+  plot3b,                         # add marginal histograms
+  margins = "y",
+  size = 3,
+  type = "histogram",             # specify histograms
+  fill = "lightblue",             # bar fill
+  yparams = list(binwidth = 2))   # bin width for y-axis marginal
+
+# Plot4b with marginal histograms
+plot4bm <- ggMarginal(
+  plot4b,                         # add marginal histograms
+  margins = "y",
+  size = 3,
+  type = "histogram",             # specify histograms
+  fill = "lightblue",             # bar fill
+  yparams = list(binwidth = 1))   # bin width for y-axis marginal
+
+plot3bm
+
+```
+
+</div>
+<br>
+<div align=center>
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.height=5, out.width='100%', fig.align='center'}
+### *******************************************************************
+### ** GRAPH 9 - TOTAL #s for PID16011 (2035 Kennedy Rd) 2024-03-29 **
+### *******************************************************************
+plot16011 <- df3NAPID16011 %>%
+  filter(OCCUPANCY_DATE >= "2024-01-04" & OCCUPANCY_DATE <= "2024-03-29") %>%
+  ggplot() +
+  aes(x = OCCUPANCY_DATE,
+      y = Rooms_Unavailable,
+      colour = Room_Capacity) +
+  geom_point(shape = "circle", size = 3L) +
+  geom_smooth(span = 0.5) +
+  scale_color_distiller(palette = "Blues", direction = 1) +
+  labs(x = "Date",
+       y = "Unavailable Rooms (counts)",
+       title = "Figure 9: Homes First Delta Hotel Shelter (# Unavailable Rooms)",
+       color = "Room Capacity") +
+  theme_bw() +
+  theme(plot.title = element_text(size = 14L,
+                                  face = "bold", hjust = 0.5, vjust = 0),
+        axis.title.y = element_text(size = 12L, face = "bold"),
+        axis.title.x = element_text(size = 12L, face = "bold"),
+        legend.justification = c(1,0),
+        legend.position = c(0.99,0.1))
+
+### Create Interactive Plot with "ggplotly" package
+plot2035Kenly <- plot16011 %>% plotly::ggplotly()
+plot2035Kenly
+
+```
+
+</div>
+
+**Figure 8 & 9. Occupancy Number at the Homes First run Delta Hotel Shelter.** The two graphs above show the number of rooms at the Delta Shelter that are either occupied (**Figure 8**) or unoccupied (**Figure 9**) by a homeless person. The marginal histogram that is apart of **Figure 8** shows that the plotted occupancy values fall into 2 distinct populations. These two populations of data points begin to emerge after July 22<sup>nd</sup> 2022 (i.e. July 21<sup>st</sup> = 316 residents, July 22<sup>nd</sup> = 334 residents). Current data trends suggest that a smaller Delta resident population, similar to the one that existed prior to July 22<sup>nd</sup> 2022, will likely re-emerge. The rising number of unavailable rooms at the Delta Shelter over the last 39 days (**Figure 9**) shows the rapidly changing dynamics of the Delta Shelter population. The plotted **loess** (**LO**cal regr**ESS**ion) fitted "*smoothed*" curve is a common non-parametric modelling tool used to fit a curve to a set of data points. Here the **Loess** model is "well defined" (i.e. residuals are constant over the full range of x values) and thus reveals a "*real*" overall pattern in the data (i.e. increasing rate of unavailable rooms). It is also important to note that the overnight **Delta Hotel Shelter** (Program ID 16011) supervised by **Homes First** is only one of 9 shelters and 17 supportive housing sites run by this charitable agency. Their mission statement is to "*develop and provide affordable, stable housing and support services to break the cycle of homelessness for people with the fewest housing options*", particularly for a growing homeless **<a class="one" href="https://homefulltoronto.ca/">senior</a>** (>50 yrs) population that make up a large part of their ~2,300 clients. However, despite the continued rise in the number of **GTA** homeless persons and the recent infusion of Federal dollars (**<a class="one" href="https://www.cbc.ca/news/canada/toronto/asylum-seeker-shelter-funding-toronto-1.7102849">$162 million</a>**) into its shelter system, **Homes First** has unilaterally decided to transition the **Delta** site to a refugee only shelter (i.e. no consultations with residents). Apparently, in accordance with the wishes of local Ward 22 councillor Nick Mantas, the shelter is actively trying to move or evict people from the safety of the shelter. Many have already faced punitive "*service restrictions*" without any appeals process. The recent updated *ad hoc* appeals process typically results in the clients eviction at the end of the restriction period, since this process usually takes 1 or 2 weeks. Note that during the time it takes to resolve the appeals process the client is usually forced to find accommodations elsewhere (i.e. homeless). The recent rise in the number of **unavailable** rooms (**Fig. 9**) is likely an indicator of future evictions for many non-refugee residents at the Delta shelter. Note that the number of **unavailable rooms** (i.e. **UNAVAILABLE ROOMS** = **ROOMS CAPACITY FUNDING** - **ROOM OCCUPIED**) are rooms that the service provider still has designated funding to maintain (**Table 1**).
+
+
+```{r include=FALSE, eval=FALSE, echo=FALSE, message=FALSE, warning=FALSE,}
+# DATA for generating a LOESS model
+data1 <- df3NAPID16011 %>% filter(OCCUPANCY_DATE >= "2024-01-04" & OCCUPANCY_DATE <= "2024-03-29")
+
+data2 <- data1 %>% select(OCCUPANCY_DATE, Room_Capacity_Funding, Rooms_Occupied, Rooms_Unavailable)
+
+df <- na.omit(data2)
+
+#convert all character variables to factor variables
+library(dplyr)
+df %>% mutate_if(is.character, as.factor)
+
+# Fit a LOESS model
+loess_model <- loess(Rooms_Unavailable ~ as.numeric(OCCUPANCY_DATE), data = df, span = 0.5, degree = 1)
+
+# Fit higher order polynomial LOESS model
+loess_model2 <- loess(Rooms_Unavailable ~ as.numeric(OCCUPANCY_DATE), data = df, span = 0.5, degree = 2)
+
+# Generate predictions from the LOESS model
+predictions <- predict(loess_model, newdata = df)
+predictions <- cbind(df, predictions)
+predictions <- predictions[order(predictions$Rooms_Unavailable), ]
+
+predictions2 <- predict(loess_model2, newdata = df)
+predictions2 <- cbind(df, predictions2)
+predictions2 <- predictions2[order(predictions2$Rooms_Unavailable), ]
+
+# Create a scatter plot of the original data
+plot(
+  predictions$OCCUPANCY_DATE,
+  predictions$Rooms_Unavailable,
+  col = "darkblue", 
+  main = "LOESS Regression", 
+  xlab = "Date", 
+  ylab = "Unavaiable Rooms")
+lines(predictions$OCCUPANCY_DATE, predictions$predictions, col = "darkred", lwd = 1)
+
+
+ggplot(df, aes(x = OCCUPANCY_DATE, y = Rooms_Unavailable)) +
+  geom_point() +
+  stat_smooth(method = "loess", se = FALSE,
+              span = 0.5,
+              method.args = list(degree = 1) )
+
+ggplot(df, aes(x = OCCUPANCY_DATE, y = Rooms_Unavailable)) +
+  geom_point() +
+  stat_smooth(method = "loess", se = FALSE,
+              span = 0.5,
+              method.args = list(degree = 2) )
+
+df$residuals <- residuals(loess_model)
+df$residuals2 <- residuals(loess_model2)
+
+ggplot(df, aes(x = OCCUPANCY_DATE, y = residuals)) +
+  geom_point() +
+  stat_smooth(method = "loess", se = FALSE,
+              span = 0.5,
+              method.args = list(degree = 1) )
+
+ggplot(df, aes(sample = residuals)) + 
+  stat_qq(distribution = qnorm) +
+  stat_qq_line(distribution = qnorm, col = "blue")
+
+ggplot(df, aes(sample = residuals2)) + 
+  stat_qq(distribution = qnorm) +
+  stat_qq_line(distribution = qnorm, col = "blue")
+
+```
+
+<br>
+<br>
+
+```{r include=FALSE}
+### ************************************************************
+### *********************** EXTRA CODE  ************************
+### ************************************************************
+
+#```{r}
+#TESTplot16011 <- ggplot(df3NAPID16011) +
+ #aes(x = OCCUPANCY_DATE, y = SERVICE_USER_COUNT) +
+ #geom_point(shape = "circle", 
+ #size = 1.5, colour = "#112446") +
+ #theme_minimal()
+
+### Create Interactive Plot with "ggplotly" package
+#TESTggplotly <- TESTplot16011 %>% plotly::ggplotly()
+#TESTggplotly
+
+###########################################################################
+
+######  *************EXTRA CODE*************
+###### OPTION ===> Define the conditions and replacement values
+# conditions <- c("Sita", "Riya")
+# replacement_values <- c("NewSita", "NewRiya")
+ 
+###### Use **replace()** FUNCTION to change names in the "Names" column
+# df$Names <- replace(df$Names, df$Names %in% conditions, replacement_values)
+
+### Replace '14' in column c with '24'
+# df3['x2'][df3['x2'] == "Buda"] <- 24
+
+
+### ******************************************************************
+### **** GRAPH - Bar Graph TOTAL #s per Program ID for 2024-03-20 ****
+### ******************************************************************
+
+# Use logic function "subset" to select last set of observations
+# Single Day snapshot of data.frame (i.e. March 20, 2024)
+# 1175 observation days in total (Jan. 1, 2021 ==> March 29, 2024)
+# 2024-03-29 has 138 observations (i.e. 138 Program IDs) for 32 variables
+# data.frame dimensions = 138 x 32
+# df3NA240329 <- subset(df3.NA, OCCUPANCY_DATE == "2024-03-29")
+
+# 2024-03-29 Total User Counts = 9704
+# sum29Mar2024 <- sum(df3NA240329$SERVICE_USER_COUNT)
+# sum29Mar2024
+
+### Bar Graph (2024/03/29) = 9704 Shelter population, 136 Program IDs 
+# plot1 <- ggplot(df3NA240329) + aes(x = PROGRAM_ID, y = SERVICE_USER_COUNT, colour = CAPACITY_TYPE) + geom_col(fill = "lightgray") + scale_color_manual(values = c(`Bed Based Capacity` = "black", `Room Based Capacity` = "darkred")) + labs(x = "Program IDs", y = "Occupancy # (counts)", title = "Greater Toronto Shelter Population", subtitle = "(136 Program IDs, 9704 Residents)", color = "Capacity Type", caption = stringr::str_glue("Current Data: 2024-03-29")) + theme_bw() + theme(plot.title = element_text(size = 20L, face = "bold", hjust = 0.5), plot.subtitle = element_text(size = 14L, face = "bold.italic", hjust = 0.5), axis.title.y = element_text(size = 14L, face = "bold"), axis.title.x = element_text(size = 14L, face = "bold"), axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = rel(0.6)), plot.background = element_rect(fill = "white"), panel.grid.minor = element_blank(), panel.grid.major = element_blank(), legend.justification = c(1,0), legend.position = c(0.99,0.8))     ggsave(plot1, filename = "c:/Users/j27howard/Desktop/ShelterVoices/SV_Dashboard_git_repo/test1.png", height = 6, width = 10)
+
+```
+
+```{r include=FALSE}
+### ***************************************************************
+### **** GRAPH - TOTAL #s per Program ID vs TIME (CITY FACETS) ****
+### ***************************************************************
+
+### Use "group by" and "sum" functions to sum up observations
+# df3NAPIDsums <- df3.NA %>% group_by(OCCUPANCY_DATE, CITY, POSTALcode, PROGRAM_ID, SECTOR, PROGRAM_MODEL, SERVICE_TYPE, PROGRAM_AREA) %>% summarise(n_observ = n(), sum_Users = sum(SERVICE_USER_COUNT))
+
+### Plot data frame - "City" Facets
+#df3NAPIDsums.plot <-ggplot(df3NAPIDsums) + aes(x = OCCUPANCY_DATE, y = sum_Users, group = PROGRAM_ID) + geom_line(colour = "darkblue") + labs(x = "Date", y = "Occupancy # (counts)", title = "Greater Toronto Shelter Population", subtitle = "(Populations per City)", caption = "Current Data: 2021/01/01 - 2024/03/29") + theme_bw() + theme(plot.title = element_text(size = 20L, face = "bold", hjust = 0.5), plot.subtitle = element_text(size = 14L, face = "bold", hjust = 0.5), plot.caption = element_text(size = 10L, face = "bold", hjust = 0), axis.title.y = element_text(size = 14L, face = "bold"), axis.title.x = element_text(size = 14L, face = "bold"), plot.background = element_rect(fill = "white"), panel.grid.minor = element_blank()) + facet_wrap(vars(CITY), scales = "free_y", ncol = 3L, nrow = 3L)   ggsave(df3NAPIDsums.plot, filename = "c:/Users/j27howard/Desktop/ShelterVoices/SV_Dashboard_git_repo/testCity.png", height = 8, width = 10)
+
+```
+
+
+# REFERENCES:  
+
+**1.** Gaetz, S.; Barr, C.; Friesen, A.; Harris, B.; Hill, C.; Kovacs-Burns, K.; Pauly, B.; Pearce, B.; Turner, A.; Marsolais, A. (2012). Canadian Definition of Homelessness. Toronto: Canadian Observatory on Homelessness Press. www.homelesshub.ca/homelessdefinition
+
+**2.** City of Toronto (2024). "*About Daily Shelter & Overnight Service Occupancy & Capacity*". https://open.toronto.ca/dataset/daily-shelter-overnight-service-occupancy-capacity/
+
+**3.** City of Toronto - Housing Stability Service System Overview (2019). "*Housing + Homelessness Service Glossary*". https://www.toronto.ca/city-government/data-research-maps/research-reports/housing-and-homelessness-research-and-reports/housing-stability-service-system-map-and-terms/
+
+
+
+</body>
+
+
+
